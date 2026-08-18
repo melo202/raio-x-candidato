@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Metodologia — Raio-X do Candidato</title>
+<meta name="description" content="Como o Raio-X do Candidato coleta, cruza e apresenta os dados: fontes oficiais, régua igual para todos, sem nota, sem ranking, sem opinião.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="assets/icon-192.png">
+</head>
+<body>
+<header class="topo">
+  <a class="marca" href="./#/">
+    <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="40" height="40" rx="10" fill="#f5b301"/><path d="M24 10 L16 26 h6 l-2 12 10-18 h-6 l4-10 z" fill="#0c1626"/></svg>
+    <span>Raio-X <b>do Candidato</b></span>
+  </a>
+  <nav><a href="./#/">Buscar</a><a href="metodologia.html">Metodologia</a><a href="privacidade.html">Privacidade</a></nav>
+</header>
+<main>
+<article class="prosa">
+<h1>Metodologia</h1>
+
+<p>O Raio-X do Candidato existe para responder a uma pergunta simples — <em>"quem é esse
+candidato, de verdade?"</em> — usando exclusivamente dados oficiais, apresentados em linguagem
+acessível e com o link da fonte em cada informação. Esta página explica, de forma aberta e
+verificável, de onde vem cada dado e como ele é tratado.</p>
+
+<h2>Princípios</h2>
+<p><strong>Dado, não nota.</strong> Não damos score, ranking, selo ou qualquer avaliação.
+Mostramos o fato, a fonte e o contexto necessário para interpretá-lo. Julgar é papel do eleitor.</p>
+<p><strong>Fonte oficial linkada em tudo.</strong> Cada seção da ficha indica de qual base
+pública o dado foi extraído, com link direto para o TSE, a Câmara dos Deputados, o Senado
+Federal, o TCU ou o Portal da Transparência.</p>
+<p><strong>Régua igual para todos.</strong> Todas as fichas têm os mesmos campos, na mesma
+ordem, gerados pelo mesmo processo automatizado, independentemente de partido, cargo ou
+posição política. Nenhuma ficha recebe tratamento editorial individual.</p>
+<p><strong>Contexto obrigatório em dado sensível.</strong> Informações que podem ser mal
+interpretadas — como variação patrimonial ou presença em listas de órgãos de controle — são
+sempre acompanhadas de aviso explicando seus limites.</p>
+
+<h2>Fontes e camadas de dados</h2>
+<p><strong>Ficha básica</strong> (nome, partido, cargo, situação do registro, escolaridade,
+ocupação, foto): arquivos abertos <code>consulta_cand</code> do
+<a href="https://dadosabertos.tse.jus.br" target="_blank" rel="noopener">Portal de Dados Abertos do TSE</a>,
+atualizados diariamente durante o período eleitoral. A situação do registro (deferido,
+indeferido, sub judice etc.) reflete o arquivo mais recente processado, cuja data aparece no
+rodapé de cada ficha.</p>
+<p><strong>Evolução patrimonial</strong>: declarações de bens (<code>bem_candidato</code>)
+entregues pelo próprio candidato ao TSE em todas as eleições desde 2014 — gerais (2014,
+2018, 2022, 2026) e municipais (2016, 2020, 2024) —, somadas por candidatura e ligadas entre
+eleições pelo CPF do candidato, presente nos arquivos oficiais.
+Os valores são nominais (sem correção pela inflação) e refletem apenas o que foi declarado —
+a variação pode decorrer de herança, venda de empresa, valorização de imóvel ou mudança de
+critério de declaração. Por isso, a ficha nunca qualifica a variação: apresenta o número, o
+período e o aviso.</p>
+<p><strong>Contas julgadas irregulares (TCU)</strong>: lista pública de responsáveis com
+contas julgadas irregulares mantida pelo Tribunal de Contas da União e enviada ao TSE para
+fins eleitorais. O cruzamento é feito por CPF; quando só há coincidência de nome, a ficha
+avisa expressamente sobre a possibilidade de homonímia. Constar da lista não significa
+inelegibilidade — quem decide sobre registros é a Justiça Eleitoral, caso a caso.</p>
+<p><strong>Registros em cadastros oficiais de sanção</strong>: cruzamento diário com os
+cadastros públicos da CGU no Portal da Transparência — CEIS (empresas e pessoas físicas
+inidôneas ou suspensas), CNEP (Lei Anticorrupção) e CEAF (expulsões da administração
+federal). No CEIS e no CNEP a identificação é por CPF completo (certeza). No CEAF o CPF é
+publicado mascarado, então só entra na ficha quando os dígitos centrais do CPF E o nome
+completo coincidem, e mesmo assim com aviso para conferência na consulta oficial. A ficha
+sempre lembra: sanção administrativa não é condenação criminal e pode estar sub judice.
+Quando nada consta, a ficha diz isso expressamente, com a data da consulta — "nada consta"
+também é informação.</p>
+<p><strong>Contas no TCM-GO (âmbito municipal)</strong>: lista oficial do Tribunal de
+Contas dos Municípios de Goiás — contas de prefeitos com parecer prévio pela rejeição,
+contas de gestão julgadas irregulares e contas com débito — obtida da API pública do próprio
+TCM. Goiás tem dois tribunais de contas: o TCM julga contas municipais; o TCE, estaduais.
+O CPF publicado pelo TCM é mascarado (só os dígitos iniciais), então um registro só entra
+na ficha com dupla coincidência (nome completo idêntico + dígitos iniciais do CPF), e a
+ficha indica ainda se o município do registro aparece no histórico do candidato. Parecer ou
+julgamento de tribunal de contas não significa inelegibilidade nem condenação criminal —
+contas de prefeito são julgadas em definitivo pela Câmara Municipal e quem decide sobre
+registro de candidatura é a Justiça Eleitoral.</p>
+<p><strong>Contas no TCE-GO (âmbito estadual)</strong>: relação de responsáveis com contas
+julgadas irregulares publicada pelo Tribunal de Contas do Estado de Goiás para as eleições
+(LC 64/1990). Alcança quem geriu recursos estaduais (secretarias, autarquias, órgãos do
+estado). A fonte publica CPF completo, então a identificação é por CPF — sem risco de
+homônimo. Mesmas ressalvas do TCM: registro não é inelegibilidade automática nem condenação
+criminal, e a decisão pode estar suspensa ou reformada judicialmente.</p>
+<p><strong>Gestão em números — IDEB</strong>: para candidatos que já foram prefeitos (ou
+vice-prefeitos, com indicação expressa de que a gestão é do titular), a ficha mostra a série
+do IDEB da rede municipal de ensino (anos iniciais, INEP) durante o mandato, sempre ao lado
+da média das redes municipais do estado e com a edição anterior ao mandato como linha de
+base. Indicador é contexto, não veredito: resultado educacional depende de muitos fatores e
+muda devagar.</p>
+<p><strong>Finanças do município no mandato (Siconfi)</strong>: receitas, despesas e
+investimentos declarados pelo próprio município ao Tesouro Nacional (Declarações de Contas
+Anuais — Siconfi/DCA) nos anos do mandato de ex-prefeitos, por habitante e corrigidos pela
+inflação (IPCA) para permitir comparação entre anos, com o ano anterior ao mandato como
+base. Orçamento municipal depende de transferências e da economia local — a série é
+contexto, não nota de gestão.</p>
+<p><strong>Participações em empresas (QSA/Receita Federal)</strong>: vínculos societários
+declarados à Receita Federal, dos dados abertos mensais do CNPJ. O CPF do sócio é publicado
+mascarado (6 dígitos centrais), então um vínculo só entra na ficha com dupla coincidência
+(nome completo idêntico + dígitos centrais do CPF). Ter empresa é lícito e comum — a lista é
+transparência, não acusação. Quando uma empresa do candidato consta de cadastro de sanção
+(CEIS/CNEP), a ficha registra a sanção DA EMPRESA, que não se transfere ao sócio. Pelo
+desenho do cruzamento, a ficha só mostra a seção quando há vínculo confirmado — a ausência
+da seção não significa "não tem empresas".</p>
+<p><strong>Doações de campanha que o candidato fez</strong>: doações eleitorais declaradas
+nas prestações de contas de 2022 e 2024 (dados abertos do TSE), cruzadas pelo CPF do doador
+— mostra a quem o candidato já doou e quanto, inclusive para a própria campanha.</p>
+<p><strong>Atuação parlamentar</strong>: para candidatos que são deputados federais na
+legislatura atual, a ficha traz números dos Dados Abertos da Câmara: projetos apresentados
+(PL, PLP, PEC, PDL), quantas propostas de sua autoria já foram transformadas em norma
+jurídica (na carreira inteira, porque leis levam anos para maturar), participação nas
+votações nominais do Plenário ano a ano (votos registrados ÷ votações realizadas) e gastos
+da cota parlamentar (CEAP). A identificação é pelo CPF publicado pela própria Câmara —
+sem risco de homônimo. A ficha lembra que ausência pode ter justificativa legal e que
+quantidade de projetos não mede qualidade.</p>
+<p><strong>Quem financia</strong> (em breve): prestação de contas eleitorais do TSE, cuja
+primeira entrega parcial ocorre em setembro de 2026.</p>
+<p><strong>Votos, gastos de mandato e processos</strong> (em breve): APIs de Dados Abertos da
+Câmara dos Deputados e do Senado Federal, Portal da Transparência e consulta pública ao
+DataJud/CNJ, para candidatos que já exercem mandato.</p>
+<p><strong>Radar de imprensa</strong>: para candidatos majoritários, a ficha lista menções
+recentes na imprensa — apenas título, veículo, data e link para a matéria original. O conteúdo
+é integralmente dos veículos: não produzimos, resumimos nem verificamos matérias. Só entram
+links de uma lista fechada de veículos jornalísticos com redação profissional e
+responsabilidade editorial identificável (entre eles: O Popular, Mais Goiás, Jornal Opção,
+A Redação, g1, Folha de S.Paulo, Estadão, O Globo, UOL, CNN Brasil, Metrópoles, Poder360,
+Agência Brasil, BBC News Brasil, Gazeta do Povo, Correio Braziliense, Valor Econômico,
+Agência Pública e Nexo — a lista completa está no código público do pipeline). A busca usa o
+nome de urna entre aspas com o nome do estado, mas homônimos são possíveis, e a ficha avisa
+isso expressamente. Nenhuma rede social ou blog sem redação identificável entra no radar —
+essa é a salvaguarda estrutural contra desinformação.</p>
+<p><strong>Histórico eleitoral</strong>: candidaturas e resultados oficiais (eleito, não
+eleito, suplente) em todas as eleições desde 2014 — gerais e municipais —, cruzados por CPF
+nos dados abertos do TSE, incluindo mandatos exercidos e mudanças de partido entre eleições
+(fusões e renomeações de partidos, como PMDB→MDB, não contam como troca).</p>
+<p><strong>Redes e site oficiais</strong>: endereços declarados pelo próprio candidato ao TSE
+no registro da candidatura — publicamos apenas URLs, sem coletar conteúdo delas.</p>
+<p><strong>Processos da candidatura no TSE</strong>: impugnações, AIJEs e demais ações contra
+a candidatura, conforme publicadas pelo próprio TSE no DivulgaCandContas, sempre com link para
+a consulta oficial.</p>
+<p><strong>Resumo de plano de governo</strong>: quando presente, é gerado por inteligência
+artificial a partir do PDF oficial protocolado no TSE, com instrução expressa de neutralidade
+(sem adjetivos, sem juízo de viabilidade) e link para o documento original. O resumo é
+identificado como automatizado.</p>
+
+<h2>Como identificamos a pessoa certa (níveis de confiança)</h2>
+<p>Cruzar bases diferentes exige cuidado com homônimos. Trabalhamos com três níveis, sempre
+declarados na própria ficha:</p>
+<p><strong>Nível 1 — CPF completo</strong> (TCE-GO, CEIS/CNEP, TCU quando disponível,
+Câmara, todas as bases do TSE): identificação certa, sem risco de homônimo.</p>
+<p><strong>Nível 2 — nome completo idêntico + 6 dígitos centrais do CPF</strong> (CEAF,
+QSA/Receita): dupla coincidência com probabilidade de colisão desprezível; ainda assim a
+ficha indica o critério.</p>
+<p><strong>Nível 3 — nome completo idêntico + dígitos iniciais do CPF</strong> (TCM-GO, que
+só publica os primeiros dígitos): é o critério mais fraco; a ficha avisa expressamente,
+recomenda conferência no processo e indica quando o município do registro coincide com o
+histórico do candidato. Na validação da base de Goiás, o critério rejeitou corretamente o
+único caso de homônimo encontrado.</p>
+<h2>Política de "nada consta"</h2>
+<p>Quando o candidato não aparece numa lista que consultamos, a ficha diz isso expressamente,
+com a data da consulta — "nada consta" também é informação. Mas cada lista tem um escopo, e a
+ficha o declara: não constar da lista do TCM-GO, por exemplo, só é informativo para quem já
+geriu recursos municipais; para os demais, a ausência é esperada e não significa "contas
+aprovadas". Nunca escrevemos "ficha limpa" — isso seria um juízo, não um dado.</p>
+<h2>Limitações conhecidas</h2>
+<p>Os cadastros da CGU consolidam sanções federais e as informadas por entes que aderem ao
+sistema — sanções puramente estaduais/municipais podem não constar. O QSA reflete o cadastro
+da Receita no mês de referência indicado na ficha. As finanças municipais (Siconfi) são
+autodeclaradas pelos municípios. As listas de tribunais de contas refletem a publicação
+oficial na data da consulta — decisões posteriores (recurso, suspensão judicial) podem não
+estar refletidas; por isso toda seção tem link para a consulta oficial. Descrições de bens
+declaradas ao TSE passam por filtro automático que mascara CPFs, contas bancárias e placas
+eventualmente digitados pelo próprio candidato no texto livre.</p>
+
+<h2>Atualização</h2>
+<p>O processamento roda diariamente durante o período eleitoral. Cada ficha exibe a data de
+geração dos arquivos do TSE utilizados e a data em que a ficha foi montada.</p>
+
+<p><em>Versão desta metodologia: 2.0 — 18/08/2026 (inclui TCM-GO, TCE-GO, Siconfi, QSA,
+IDEB e doações feitas; histórico de mudanças no repositório).</em></p>
+<h2>Transparência do código</h2>
+<p>O pipeline de dados que gera este site é público e auditável no GitHub. Qualquer pessoa
+pode reproduzir os cruzamentos a partir dos mesmos arquivos oficiais e verificar os
+resultados.</p>
+
+<h2>Erros, correções e contestações</h2>
+<p>Se você identificar divergência entre uma ficha e as bases oficiais — ou se você é
+candidato(a) e quer contestar um registro — escreva pelo canal de contato do projeto
+(a ser divulgado nesta página antes da publicação) informando o nome/número
+do candidato, a seção contestada e o documento que fundamenta o pedido (número de processo,
+certidão ou decisão). Acusamos o recebimento em até 48&nbsp;horas e respondemos em até 7
+dias. Três desfechos possíveis: erro nosso (corrigimos e registramos), dado oficial
+desatualizado (anotamos a contestação na ficha e indicamos a fonte para retificação na
+origem) ou pedido improcedente (respondemos com a fonte). Toda correção fica registrada no
+log público de correções do repositório (CORRECOES.md).</p>
+<h2>Quem faz</h2>
+<p>O Raio-X do Candidato é um projeto cívico independente, criado e mantido por
+<strong>Bruno Melo de Carvalho</strong>, advogado (OAB/GO 58.029), sem financiamento
+partidário, empresarial ou de campanha — os custos são do próprio autor. O código do
+pipeline é público e auditável. O canal de contato do projeto será divulgado nesta página.</p>
+</article>
+</main>
+<footer class="rodape">
+  <p><b>Raio-X do Candidato</b> — dado oficial, não opinião.</p>
+  <p class="fina"><a href="./#/">Buscar candidato</a> · <a href="privacidade.html">Privacidade (LGPD)</a></p>
+</footer>
+</body>
+</html>

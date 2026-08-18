@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Raio-X do Candidato — quem é, de verdade, com fonte oficial em tudo</title>
+<meta name="description" content="Digite o nome ou número do candidato e veja a ficha única: patrimônio declarado desde 2014, situação do registro, financiamento e mais — cada dado com link da fonte oficial (TSE, Câmara, TCU). Sem nota, sem ranking, sem opinião.">
+<meta name="theme-color" content="#0c1626">
+<meta property="og:title" content="Raio-X do Candidato">
+<meta property="og:description" content="Quem é esse candidato, de verdade? Ficha única com fonte oficial em cada dado. Eleições 2026.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://melo202.github.io/raio-x-candidato/assets/og-default.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="pular" href="#app">Pular para o conteúdo</a>
+<header class="topo">
+  <a class="marca" href="#/">
+    <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="40" height="40" rx="10" fill="#f5b301"/><path d="M24 10 L16 26 h6 l-2 12 10-18 h-6 l4-10 z" fill="#0c1626"/></svg>
+    <span>Raio-X <b>do Candidato</b></span>
+  </a>
+  <nav>
+    <a href="#/">Buscar</a>
+    <a href="metodologia.html">Metodologia</a>
+    <a href="privacidade.html">Privacidade</a>
+  </nav>
+</header>
+
+<main id="app" aria-live="polite">
+  <noscript><p class="aviso">Este site precisa de JavaScript para funcionar.</p></noscript>
+</main>
+
+<footer class="rodape">
+  <p><b>Raio-X do Candidato</b> mostra dado oficial, não opinião: sem nota, sem ranking, sem selo.
+     Mesma ficha, mesmos campos e mesma ordem para todos os candidatos.</p>
+  <p>Fontes: <a href="https://dadosabertos.tse.jus.br" rel="noopener" target="_blank">Portal de Dados Abertos do TSE</a> ·
+     <a href="https://divulgacandcontas.tse.jus.br" rel="noopener" target="_blank">DivulgaCandContas</a> ·
+     TCU · TCE-GO · TCM-GO · CGU/Portal da Transparência · Receita Federal (CNPJ) ·
+     Tesouro Nacional (Siconfi) · INEP · Câmara dos Deputados</p>
+  <p class="fina">Projeto cívico independente de Bruno Melo de Carvalho (OAB/GO 58.029), sem
+     financiamento partidário ou empresarial · contato, correções e LGPD:
+     canal a ser divulgado na <a href="privacidade.html">página de privacidade</a></p>
+  <p class="fina">Projeto independente e apartidário. <a href="metodologia.html">Como os dados são tratados</a> ·
+     <a href="privacidade.html">Aviso de privacidade (LGPD)</a></p>
+</footer>
+
+<script src="app.js"></script>
+<script>
+if ("serviceWorker" in navigator && location.protocol === "https:")
+  navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>

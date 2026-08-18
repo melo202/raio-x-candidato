@@ -1,0 +1,9 @@
+duckdb>=1.0
+pandas>=2.0
+requests>=2.31
+pillow>=10.0
+openpyxl>=3.1        # ler lista TCU em xlsx
+# opcionais — resumo de planos de governo (camada IA)
+anthropic>=0.40
+pypdf>=4.0
+pdfplumber  # tcego.py — extrai a tabela do PDF do TCE-GO

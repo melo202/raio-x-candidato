@@ -1,0 +1,13 @@
+# dados brutos e banco (recomputáveis a partir do TSE)
+data/raw/
+data/raiox.duckdb
+data/tcu/*
+!data/tcu/.gitkeep
+
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# consultas CNIA (drop-in manual, contém dados pessoais de terceiros)
+data/cnia/

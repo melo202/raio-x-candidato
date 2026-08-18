@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://melo202.github.io/raio-x-candidato/sitemap.xml
