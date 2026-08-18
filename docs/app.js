@@ -81,6 +81,7 @@ async function carregarIndice(uf) {
 /* ── busca ──────────────────────────────────────────────────── */
 const CARGOS = [
   ["todos", "Todos"],
+  ["PRESIDENTE", "Presidente"],
   ["GOVERNADOR", "Governador"],
   ["SENADOR", "Senador"],
   ["DEPUTADO FEDERAL", "Dep. Federal"],
@@ -92,6 +93,18 @@ function filtrar(idx) {
   const soNumero = /^\d+$/.test(state.termo.trim());
   let lista = idx.candidatos;
 
+  if (state.filtroCargo === "PRESIDENTE") {
+    // presidente é circunscrição NACIONAL (registro "BR" no TSE) — índice próprio
+    lista = (state.indices.BR?.candidatos || [])
+      .filter((c) => norm(c.cg).includes("PRESIDENTE"));
+    lista = [...lista].sort((a, b) =>
+      (norm(a.cg) === "PRESIDENTE" ? 0 : 1) - (norm(b.cg) === "PRESIDENTE" ? 0 : 1)
+      || (a.nu || "").localeCompare(b.nu || "", "pt-BR"));
+    if (termo) lista = soNumero
+      ? lista.filter((c) => c._nr.startsWith(state.termo.trim()))
+      : lista.filter((c) => c._busca.includes(termo));
+    return lista;
+  }
   if (state.filtroCargo !== "todos")
     lista = lista.filter((c) => norm(c.cg) === state.filtroCargo);
 
@@ -175,7 +188,8 @@ async function telaBusca(uf) {
     meta.textContent = `${res.length} candidato${res.length === 1 ? "" : "s"} · ` +
       `dados do TSE de ${idx.dados_tse_de || idx.gerado_em}`;
     const LIM = 60;
-    lista.innerHTML = res.slice(0, LIM).map((c) => cardCandidato(uf, c)).join("") +
+    const ufCard = state.filtroCargo === "PRESIDENTE" ? "br" : uf;
+    lista.innerHTML = res.slice(0, LIM).map((c) => cardCandidato(ufCard, c)).join("") +
       (res.length > LIM ? `<p class="meta-busca">Mostrando ${LIM} de ${res.length} — refine a busca.</p>` : "");
     if (typeof renderBarraRef === "function") renderBarraRef();
   }
@@ -209,7 +223,8 @@ async function telaBusca(uf) {
   });
   $("#btn-limpar-comparacao").addEventListener("click", () => { state.compara = []; renderBarra(); });
   $("#btn-ver-comparacao").addEventListener("click", () => {
-    location.hash = `#/${uf}/comparar/${state.compara.join(",")}`;
+    const ufComp = state.comparaSelUf || uf;
+    location.hash = `#/${ufComp}/comparar/${state.compara.join(",")}`;
   });
   lista.addEventListener("click", (e) => {
     if (!state.modoCompara) return;
@@ -223,9 +238,16 @@ async function telaBusca(uf) {
     renderBarra();
   });
   renderBarra();
-  app.querySelectorAll(".chip[data-cargo]").forEach((ch) => ch.addEventListener("click", () => {
+  app.querySelectorAll(".chip[data-cargo]").forEach((ch) => ch.addEventListener("click", async () => {
     state.filtroCargo = ch.dataset.cargo;
     app.querySelectorAll(".chip[data-cargo]").forEach((o) => o.setAttribute("aria-pressed", o === ch));
+    if (ch.dataset.cargo === "PRESIDENTE" && !state.indices.BR) {
+      try { await carregarIndice("BR"); } catch { /* índice BR indisponível */ }
+    }
+    // comparação não mistura circunscrições (nacional × estadual)
+    const selUf = ch.dataset.cargo === "PRESIDENTE" ? "br" : uf;
+    if (state.comparaSelUf && state.comparaSelUf !== selUf) state.compara = [];
+    state.comparaSelUf = selUf;
     render();
   }));
   render();

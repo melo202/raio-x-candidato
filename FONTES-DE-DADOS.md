@@ -124,3 +124,26 @@ nome parlamentar + código de autor), votos nominais nas 15 matérias de maior q
 Câmara, critério objetivo declarado), ALEGO/SPL (coleta assistida por navegador — datacenter
 bloqueado; dump mensal em data/raw/alego/), quem-financia (pronto, ativa em 09/09). Detalhes
 de critérios: docs/metodologia.html v2.1.
+
+## PARECER 18/08 — camada "irregularidades em licitações na gestão" (estudo de viabilidade)
+
+Pergunta do produto: "houve registro oficial de irregularidade em licitação do ente durante o
+mandato do candidato?" Fontes investigadas e veredito:
+
+1. **CGU e-aud (relatorios.cgu.gov.br / eaud.cgu.gov.br)** — a fonte IDEAL: relatórios de
+   auditoria com filtros de Localidade e grupo "Fiscalização de Entes Federativos". PORÉM a
+   API (`/api/auth/relatorio`) responde 401 até para o navegador sem o token da SPA, e a UI
+   não reage a automação simples. Caminho realista: sessão assistida no Chrome mapeando o
+   fluxo de token (1 sessão de investigação) → depois coleta como a da ALEGO. VIÁVEL, custo
+   médio. É a melhor candidata a próxima camada.
+2. **dados.gov.br (CKAN)** — a API agora exige chave gratuita (login gov.br). AÇÃO BRUNO:
+   gerar a chave em dados.gov.br/perfil → com ela, verificar se o dataset da CGU tem CSV
+   direto (se tiver, o custo cai pra baixo).
+3. **TCM-GO processos por município** — consulta com captcha Turnstile; só assistido.
+4. **CEIS por órgão sancionador × mandato** — dado que JÁ TEMOS no banco (sancoes_pj tem
+   órgão + datas). Mas semanticamente mostra "a gestão sancionou empresas" (enforcement da
+   própria prefeitura), NÃO "a gestão fraudou" — não serve como camada de irregularidade;
+   pode virar métrica neutra futura.
+5. **Importante (jurídico)**: a palavra "fraude" nunca entra — só "relatório oficial de
+   fiscalização/auditoria do órgão X sobre o ente Y no período Z", com link. As Tomadas de
+   Contas Especiais do TCM/TCE já publicadas nas fichas cobrem parte da pergunta hoje.
