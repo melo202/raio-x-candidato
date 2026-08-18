@@ -26,6 +26,8 @@ CAMADAS = {
     "cnia": "cnia",
     "qsa": "qsa",
     "financiamento": "financiamento",
+    "emendas": "emendas",
+    "alego": "alego",
 }
 
 

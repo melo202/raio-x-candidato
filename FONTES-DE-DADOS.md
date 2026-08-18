@@ -115,3 +115,12 @@ O que fazer (cada item é um fato oficial isolado, linkado, sem síntese acusat�
 4. Disclaimers fixos por cadastro (já no pipeline) — não editáveis por ficha.
 5. Direito de correção: canal público; divergência confirmada corrige na rodada
    seguinte com changelog público no repositório.
+
+
+## ADENDO 18/08/2026 (auditoria 2)
+
+Camadas que saíram do planejamento e JÁ RODAM: emendas parlamentares (base CGU, matching por
+nome parlamentar + código de autor), votos nominais nas 15 matérias de maior quórum (CSVs da
+Câmara, critério objetivo declarado), ALEGO/SPL (coleta assistida por navegador — datacenter
+bloqueado; dump mensal em data/raw/alego/), quem-financia (pronto, ativa em 09/09). Detalhes
+de critérios: docs/metodologia.html v2.1.

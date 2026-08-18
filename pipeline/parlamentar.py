@@ -189,6 +189,94 @@ def participacao_votacoes(ids: set[int]) -> dict[int, dict]:
     return part
 
 
+TOP_VOTACOES = 15
+_RE_MATERIA = None  # compilado sob demanda (regex de matérias substantivas)
+
+
+def votos_chave(ids: set[int]) -> tuple[list[dict], dict[int, dict]]:
+    """As TOP_VOTACOES matérias de maior quórum votadas nominalmente no
+    Plenário na legislatura, com o voto de cada deputado-alvo na votação
+    decisiva de cada uma. Critério 100%% objetivo e declarado na ficha:
+        1) votações nominais de Plenário com quórum >= 400;
+        2) apenas matérias legislativas (PEC/PL/PLP/MP/PDL — descrições com
+           "Proposta de Emenda à Constituição", "Projeto de Lei", "Medida
+           Provisória", "Projeto de Decreto"), excluindo requerimentos;
+        3) uma linha por PROPOSIÇÃO (destaques e turnos da mesma matéria não
+           se repetem): vale a votação decisiva ("Aprovad…"/"Rejeitad…") de
+           maior quórum;
+        4) as TOP_VOTACOES de maior quórum entram na ficha."""
+    import re as _re  # noqa — usado também no agrupamento por matéria
+    re_materia = _re.compile(
+        r"(Proposta de Emenda à Constituição|Projeto de Lei|"
+        r"Medida Provisória|Projeto de Decreto)", _re.I)
+    re_decisiva = _re.compile(r"^(Aprovad|Rejeitad)", _re.I)
+    grupos: dict[str, dict] = {}
+    for ano in ANOS_MANDATO:
+        cache = config.RAW_DIR / f"votacoes-{ano}.csv"
+        if not cache.exists():
+            try:
+                r = requests.get(("https://dadosabertos.camara.leg.br/arquivos/"
+                                  f"votacoes/csv/votacoes-{ano}.csv"),
+                                 headers=H, timeout=600)
+                r.raise_for_status()
+                cache.write_bytes(r.content)
+            except Exception as e:
+                print(f"  [warn] votacoes {ano}: {e}")
+                continue
+        for row in csv.DictReader(
+                io.StringIO(cache.read_text("utf-8-sig", errors="replace")),
+                delimiter=";"):
+            if row.get("siglaOrgao") != "PLEN":
+                continue
+            try:
+                sim = int(row.get("votosSim") or 0)
+                nao = int(row.get("votosNao") or 0)
+                quorum = sim + nao + int(row.get("votosOutros") or 0)
+            except ValueError:
+                continue
+            desc = (row.get("descricao") or "").strip()
+            abert = (row.get("ultimaAberturaVotacao_descricao") or "").strip()
+            if quorum < 400 or not (re_materia.search(desc)
+                                    or re_materia.search(abert)):
+                continue
+            # chave da MATÉRIA: número/ano extraído da descrição (turnos e
+            # substitutivos da mesma PEC podem ter ids de proposição diferentes)
+            m_mat = _re.search(
+                r"(Emenda à Constituição|Lei Complementar|Lei|Medida Provisória|"
+                r"Decreto Legislativo)[^,]{0,20}n[ºo°]?\s*([\d.]+),?\s*de\s*(\d{4})",
+                desc + " " + abert, _re.I)
+            prop = (f"{m_mat.group(1)}-{m_mat.group(2)}-{m_mat.group(3)}".upper()
+                    if m_mat else row["id"].split("-")[0])
+            v = {"id": row["id"], "ano": ano, "data": row.get("data"),
+                 "quorum": quorum, "sim": sim, "nao": nao,
+                 "decisiva": bool(re_decisiva.match(desc)),
+                 "descricao": desc[:260]}
+            atual = grupos.get(prop)
+            melhor = (v["decisiva"], v["quorum"])
+            if atual is None or melhor > (atual["decisiva"], atual["quorum"]):
+                grupos[prop] = v
+    top = sorted(grupos.values(), key=lambda v: -v["quorum"])[:TOP_VOTACOES]
+    top_ids = {v["id"] for v in top}
+    votos: dict[int, dict] = {i: {} for i in ids}
+    for ano in sorted({v["ano"] for v in top}):
+        cache = config.RAW_DIR / f"votacoesVotos-{ano}.csv"
+        if not cache.exists():
+            continue
+        for row in csv.DictReader(
+                io.StringIO(cache.read_text("utf-8-sig", errors="replace")),
+                delimiter=";"):
+            if row.get("idVotacao") not in top_ids:
+                continue
+            try:
+                dep = int(row.get("deputado_id") or 0)
+            except ValueError:
+                continue
+            if dep in ids:
+                votos[dep][row["idVotacao"]] = row.get("voto") or ""
+    for v in top:
+        v.pop("decisiva", None)
+    top.sort(key=lambda v: v["data"] or "", reverse=True)
+    return top, votos
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--ufs", nargs="*", default=None)
@@ -211,10 +299,14 @@ def main() -> None:
 
         part = {} if args.sem_votos else participacao_votacoes(
             {d["id"] for d in alvo})
+        top_vot, votos_dep = ([], {}) if args.sem_votos else votos_chave(
+            {d["id"] for d in alvo})
         ceap = ceap_bulk({d["cpf"] for d in alvo})
 
         out_dir = config.OUT_DATA / "parlamentar" / uf
         out_dir.mkdir(parents=True, exist_ok=True)
+        for antigo in out_dir.glob("*.json"):   # quem saiu da disputa sai da pasta
+            antigo.unlink()
         for d in alvo:
             print(f"  [api ] {d['nome']}")
             m = metricas_deputado(d["id"])
@@ -225,6 +317,20 @@ def main() -> None:
                 "dep_id": d["id"], "nome_camara": d["nome"],
                 "legislatura": LEGISLATURA,
                 "participacao_votacoes": part.get(d["id"], {}),
+                "votos_chave": {
+                    "criterio": (f"as {TOP_VOTACOES} matérias legislativas "
+                                 "(PEC, PL, PLP, MP e PDL) com maior quórum "
+                                 "(mínimo de 400 votantes) em votação nominal "
+                                 "de Plenário na legislatura — uma votação "
+                                 "decisiva (aprovação/rejeição) por matéria, "
+                                 "as mesmas para todos os deputados; critério "
+                                 "objetivo, sem seleção editorial"),
+                    "itens": [{**v, "voto":
+                               votos_dep.get(d["id"], {}).get(v["id"])
+                               or ("não estava em exercício no período"
+                                   if not part.get(d["id"], {}).get(str(v["ano"]), {}).get("votou")
+                                   else "não registrou voto")} for v in top_vot],
+                },
                 "fonte_url": f"https://www.camara.leg.br/deputados/{d['id']}",
                 "nota": NOTA,
                 "gerado_em": date.today().isoformat(),

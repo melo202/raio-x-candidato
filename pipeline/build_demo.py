@@ -29,7 +29,7 @@ def montar(ufs: list[str], top: int) -> str:
         # são as fichas que melhor mostram o produto
         com_camada = []
         for c in cands:
-            for pasta in ("tcmgo", "tcego", "siconfi", "cnia"):
+            for pasta in ("tcmgo", "tcego", "siconfi", "cnia", "alego"):
                 if (config.OUT_DATA / pasta / uf / f"{c['sq']}.json").exists():
                     com_camada.append(c)
                     break

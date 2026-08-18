@@ -114,11 +114,51 @@ votações nominais do Plenário ano a ano (votos registrados ÷ votações real
 da cota parlamentar (CEAP). A identificação é pelo CPF publicado pela própria Câmara —
 sem risco de homônimo. A ficha lembra que ausência pode ter justificativa legal e que
 quantidade de projetos não mede qualidade.</p>
-<p><strong>Quem financia</strong> (em breve): prestação de contas eleitorais do TSE, cuja
-primeira entrega parcial ocorre em setembro de 2026.</p>
-<p><strong>Votos, gastos de mandato e processos</strong> (em breve): APIs de Dados Abertos da
-Câmara dos Deputados e do Senado Federal, Portal da Transparência e consulta pública ao
-DataJud/CNJ, para candidatos que já exercem mandato.</p>
+<p><strong>Como votou (deputados federais)</strong>: para candidatos que são deputados
+federais, a ficha mostra o voto nominal nas matérias de maior quórum da legislatura. O
+critério é integralmente objetivo e o mesmo para todos: (1) votações nominais de Plenário
+com pelo menos 400 votantes; (2) apenas matérias legislativas — PEC, PL, PLP, MP e PDL —
+identificadas pela descrição oficial, excluindo requerimentos; (3) uma votação decisiva
+(aprovação/rejeição) por matéria, agrupando turnos e destaques; (4) as 15 de maior quórum.
+As mesmas 15 matérias aparecem para todos os deputados — nenhuma escolha editorial. O texto
+de cada matéria é o registrado pela própria Câmara. Rótulos: "Obstrução" é tática regimental
+de bancada; "Abstenção" e "Art. 17" (presidente da sessão não vota) têm significado
+regimental; quando o deputado não exercia o mandato na data (suplência), a ficha diz isso em
+vez de "não registrou voto".</p>
+<p><strong>Emendas parlamentares (deputados federais)</strong>: valores de emendas de autoria
+do parlamentar no orçamento federal (2023–2026), da base de emendas do Portal da
+Transparência/CGU. "Empenhado" é o valor reservado; "pago" soma o pago no exercício e os
+restos a pagar pagos depois — a execução leva anos. A identificação é pelo nome parlamentar
+(o identificador que a base orçamentária usa), normalizado em maiúsculas sem acentos e sem
+partículas (de/da/dos), com verificação de que cada nome corresponde a um único código de
+autor na base. Grande parte dos valores é registrada pela CGU como "múltiplo" (não
+individualizada por município) — a ficha avisa quando isso domina o total. Emenda
+parlamentar é instrumento legal do orçamento; a camada é transparência, não juízo.</p>
+<p><strong>Atuação na ALEGO (deputados estaduais)</strong>: proposições apresentadas, leis de
+autoria e frequência em Plenário registradas pelo sistema legislativo oficial da Assembleia
+Legislativa de Goiás (SPL). A coleta é <em>assistida por navegador</em> (o sistema da ALEGO
+não oferece API nem aceita acesso automatizado de servidores) e refeita aproximadamente uma
+vez por mês — a data da coleta aparece em cada ficha, e esta camada NÃO se atualiza
+diariamente como as demais. Identificação: nome civil completo publicado pelo SPL,
+normalizado sem partículas; divergências de grafia (ex.: sobrenome adicional no registro do
+TSE) só entram após verificação manual, documentada no código público. Este é o nível de
+identificação mais fraco do site (não há CPF na fonte) — por isso o critério é declarado na
+própria ficha. Cobertura da última coleta: 49 parlamentares no sistema, 44 identificados
+como candidatos de 2026; a ausência da seção significa que o candidato não foi identificado
+no SPL, não necessariamente que nunca exerceu mandato estadual.</p>
+<p><strong>Quem financia</strong> (ativa com a prestação parcial de setembro/2026): receitas
+e gastos declarados à Justiça Eleitoral — total por origem (fundo eleitoral, fundo
+partidário, pessoas físicas, recursos próprios), os 10 maiores doadores e os 10 maiores
+fornecedores contratados por valor (o corte de 10 é fixo e igual para todos). CPF de doador
+ou fornecedor pessoa física é sempre mascarado; CNPJ é público. Fornecedores pessoa jurídica
+são cruzados por CNPJ completo com os cadastros de sanção CEIS/CNEP (fornecedor pessoa
+física não é cruzado — escolha declarada). Durante a campanha os números são PARCIAIS.</p>
+<p><strong>Comparador</strong>: a tela "comparar candidatos" exibe um subconjunto FIXO de
+campos da ficha — perfil, patrimônio declarado, histórico eleitoral, mandatos, registros nos
+órgãos de controle, vínculos societários e doações feitas —, o mesmo para qualquer dupla ou
+trio comparado, na mesma ordem. Comparação não é ranking: o site não soma, não pontua e não
+destaca vencedor; os campos condicionais (ex.: atuação parlamentar) não entram por não
+existirem para todos.</p>
 <p><strong>Radar de imprensa</strong>: para candidatos majoritários, a ficha lista menções
 recentes na imprensa — apenas título, veículo, data e link para a matéria original. O conteúdo
 é integralmente dos veículos: não produzimos, resumimos nem verificamos matérias. Só entram
@@ -157,6 +197,9 @@ só publica os primeiros dígitos): é o critério mais fraco; a ficha avisa exp
 recomenda conferência no processo e indica quando o município do registro coincide com o
 histórico do candidato. Na validação da base de Goiás, o critério rejeitou corretamente o
 único caso de homônimo encontrado.</p>
+<p><strong>Nível 4 — nome civil completo, sem CPF na fonte</strong> (ALEGO): o mais fraco;
+usado apenas quando a fonte oficial não publica nenhum dígito de CPF, com normalização
+declarada e divergências de grafia admitidas somente após verificação manual.</p>
 <h2>Política de "nada consta"</h2>
 <p>Quando o candidato não aparece numa lista que consultamos, a ficha diz isso expressamente,
 com a data da consulta — "nada consta" também é informação. Mas cada lista tem um escopo, e a
@@ -174,11 +217,13 @@ declaradas ao TSE passam por filtro automático que mascara CPFs, contas bancár
 eventualmente digitados pelo próprio candidato no texto livre.</p>
 
 <h2>Atualização</h2>
-<p>O processamento roda diariamente durante o período eleitoral. Cada ficha exibe a data de
-geração dos arquivos do TSE utilizados e a data em que a ficha foi montada.</p>
+<p>O processamento roda diariamente durante o período eleitoral para as camadas automáticas
+(TSE, CGU, TCM-GO, imprensa). Camadas de atualização mais lenta seguem o ritmo da fonte:
+Siconfi e IDEB são anuais, QSA/Receita é mensal e a camada ALEGO é coleta assistida
+aproximadamente mensal. Cada ficha exibe a data da consulta de cada camada.</p>
 
-<p><em>Versão desta metodologia: 2.0 — 18/08/2026 (inclui TCM-GO, TCE-GO, Siconfi, QSA,
-IDEB e doações feitas; histórico de mudanças no repositório).</em></p>
+<p><em>Versão desta metodologia: 2.1 — 18/08/2026 (v2.0 + votos nominais, emendas, ALEGO,
+quem-financia e comparador; histórico de mudanças no repositório).</em></p>
 <h2>Transparência do código</h2>
 <p>O pipeline de dados que gera este site é público e auditável no GitHub. Qualquer pessoa
 pode reproduzir os cruzamentos a partir dos mesmos arquivos oficiais e verificar os

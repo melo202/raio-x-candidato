@@ -54,9 +54,11 @@ def main() -> None:
         ("qsa", ["--ufs", *ufs]),                 # QSA RFB (zips mensais já baixados)
         ("cnia", ["--ufs", *ufs]),                # improbidade (drop-in manual)
         ("doacoes_feitas", []),                   # receitas 2022/2024 (estático)
-        ("financiamento", ["--ufs", *ufs]),       # quem financia 2026 (parcial 09/09→)
+        ("financiamento", ["--ufs", *ufs] + forca),  # quem financia 2026 (parcial 09/09→)
+        ("alego", ["--ufs", *ufs]),               # ALEGO (dump da coleta assistida)
         ("radar_noticias", ["--ufs", *ufs]),      # imprensa (muda todo dia)
         ("parlamentar", ["--ufs", *ufs]),         # Câmara (semanal na prática)
+        ("emendas", ["--ufs", *ufs] + forca),     # DEPOIS do parlamentar (lê os sidecars dele)
     ]
     falhas = []
     for mod, argv in etapas:
@@ -113,8 +115,9 @@ def main() -> None:
     import re as _re
     sw = config.DOCS_DIR / "sw.js"
     if sw.exists():
+        from datetime import datetime as _dt
         novo_sw = _re.sub(r'const VERSAO = "[^"]+"',
-                          f'const VERSAO = "raiox-{_d.today().strftime("%Y%m%d")}"',
+                          f'const VERSAO = "raiox-{_dt.now().strftime("%Y%m%d%H%M")}"',
                           sw.read_text("utf-8"))
         sw.write_text(novo_sw, "utf-8")
         print("  sw.js: VERSAO ← raiox-" + _d.today().strftime("%Y%m%d"))

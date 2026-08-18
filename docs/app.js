@@ -167,6 +167,7 @@ async function telaBusca(uf) {
     <div class="lista" id="lista"></div>`;
 
   const lista = $("#lista"), meta = $("#meta"), q = $("#q");
+  if (state.comparaUf !== uf) { state.compara = []; state.modoCompara = false; state.comparaUf = uf; }
   q.value = state.termo;
 
   function render() {
@@ -204,7 +205,7 @@ async function telaBusca(uf) {
     state.modoCompara = !state.modoCompara;
     if (!state.modoCompara) state.compara = [];
     renderBarraRef = renderBarra;
-  renderBarra();
+  renderBarra();  // (atribuído logo acima — barra sobrevive a re-render da lista)
   });
   $("#btn-limpar-comparacao").addEventListener("click", () => { state.compara = []; renderBarra(); });
   $("#btn-ver-comparacao").addEventListener("click", () => {
@@ -607,7 +608,7 @@ async function telaFicha(uf, sq) {
 
     ${planoHTML}
 
-    ${f.financiamento ? `
+    ${f.financiamento && f.financiamento.disponivel !== false && f.financiamento.receita_total != null ? `
     <section class="secao">
       <h2><span class="ico">💸</span>Quem financia (${f.financiamento.ano})</h2>
       <p class="fonte-linha">Fonte: <a href="${esc(f.financiamento.fonte_url)}" target="_blank"
@@ -663,8 +664,26 @@ async function telaFicha(uf, sq) {
         <tr><th>Ano</th><th>Votações nominais no Plenário</th><th>Participou</th><th>Participação</th></tr>
         ${Object.entries(f.parlamentar.participacao_votacoes).map(([ano, p]) => `<tr>
           <td>${ano}</td><td class="v">${p.votacoes}</td><td class="v">${p.votou}</td>
-          <td class="v">${p.pct.toLocaleString("pt-BR")}%</td></tr>`).join("")}
+          <td class="v">${p.votou === 0
+            ? `<span title="Zero votos no ano pode indicar que não exercia o mandato no período (ex.: suplência)">—*</span>`
+            : p.pct.toLocaleString("pt-BR") + "%"}</td></tr>`).join("")}
       </table>` : ""}
+      ${(f.parlamentar.participacao_votacoes && Object.values(f.parlamentar.participacao_votacoes).some((p) => p.votou === 0)) ? `
+      <p class="fonte-linha">* zero votos no ano geralmente indica que o parlamentar não exercia o
+        mandato no período (suplência/licença) — confira na fonte.</p>` : ""}
+      ${f.parlamentar.votos_chave?.itens?.length ? `
+      <p style="margin:16px 0 2px"><b>Como votou — as matérias de maior quórum da legislatura</b></p>
+      <p class="fonte-linha">Critério: ${esc(f.parlamentar.votos_chave.criterio)}. Texto da matéria como registrado pela própria Câmara.</p>
+      <table class="bens-tabela">
+        <tr><th>Data</th><th>Matéria e resultado no Plenário</th><th>Placar</th><th>Voto dele</th></tr>
+        ${f.parlamentar.votos_chave.itens.map((v) => `<tr>
+          <td>${fdata(v.data)}</td><td>${esc(v.descricao)}</td>
+          <td class="v">${v.sim}–${v.nao}</td>
+          <td><b>${esc(v.voto)}</b></td></tr>`).join("")}
+      </table>
+      <p class="fonte-linha">Legenda: "Obstrução" é tática regimental de bancada; "Abstenção" e
+        "Art. 17" (quem preside a sessão não vota) têm significado regimental; ausências podem ter
+        justificativa legal — não são, por si, negligência.</p>` : ""}
       ${Object.keys(f.parlamentar.ceap_por_ano || {}).length ? `
       <p class="fonte-linha">CEAP por ano: ${Object.entries(f.parlamentar.ceap_por_ano)
         .map(([a, v]) => `${a}: ${brl.format(v)}`).join(" · ")}</p>` : ""}
@@ -672,6 +691,74 @@ async function telaFicha(uf, sq) {
     </section>`
     : secaoEmBreve("🗳️", "Como votou de verdade",
       "Votos nominais na Câmara/Senado, para quem já é parlamentar (Dados Abertos da Câmara e do Senado).")}
+    ${f.alego ? `
+    <section class="secao">
+      <h2><span class="ico">🏛️</span>Atuação na Assembleia Legislativa (ALEGO)</h2>
+      <p class="fonte-linha">Fonte: <a href="${esc(f.alego.perfil_url)}" target="_blank"
+        rel="noopener">${esc(f.alego.fonte)}</a> · coletado em ${esc(f.alego.coletado_em)} ·
+        identificação: ${esc(f.alego.criterio)}</p>
+      <p>Legislatura(s) na ALEGO: <b>${f.alego.legislaturas.map((l) => `${esc(l)}ª`).join(", ")}</b>
+        ${f.alego.leis_de_sua_autoria?.length
+          ? ` · leis de sua autoria: <b>${f.alego.leis_de_sua_autoria.map((x) => `${esc(x.tipo)}: ${x.n}`).join(" · ")}</b>`
+          : " · nenhuma lei de sua autoria registrada no sistema"}</p>
+      ${f.alego.proposicoes_principais?.length ? `
+      <table class="bens-tabela">
+        <tr><th>Proposições apresentadas (todas as legislaturas no sistema)</th><th>Qtde.</th></tr>
+        ${f.alego.proposicoes_principais.map((x) => `<tr><td>${esc(x.tipo)}</td>
+          <td class="v">${x.n}</td></tr>`).join("")}
+        ${f.alego.proposicoes_outros_atos ? `<tr><td>Outros atos (comunicados, licenças etc.)</td>
+          <td class="v">${f.alego.proposicoes_outros_atos}</td></tr>` : ""}
+      </table>` : ""}
+      ${f.alego.frequencia_plenario?.length ? `
+      <p style="margin:14px 0 2px"><b>Frequência em Plenário (legislatura atual)</b></p>
+      <table class="bens-tabela">
+        <tr><th>Ano</th><th>Presente</th><th>Faltas justificadas</th><th>Faltas não justificadas</th><th>Presença</th></tr>
+        ${f.alego.frequencia_plenario.map((a) => `<tr><td>${a.ano}</td>
+          <td class="v">${a.presente}</td><td class="v">${a.falta_justificada}</td>
+          <td class="v">${a.falta_nao_justificada}</td>
+          <td class="v">${a.pct_presenca != null ? a.pct_presenca.toLocaleString("pt-BR") + "%" : "—"}</td></tr>`).join("")}
+      </table>` : ""}
+      <div class="disclaimer">${esc(f.alego.disclaimer || "")}</div>
+    </section>` : ""}
+
+    ${f.emendas ? `
+    <section class="secao">
+      <h2><span class="ico">🧭</span>Emendas parlamentares — para onde indicou recursos do orçamento</h2>
+      <p class="fonte-linha">Fonte: <a href="${esc(f.emendas.fonte_url)}" target="_blank"
+        rel="noopener">${esc(f.emendas.fonte)}</a> · anos ${f.emendas.anos_cobertos.join(", ")} ·
+        consulta de ${fdata(f.emendas.gerado_em)} · identificação: ${esc(f.emendas.criterio)}</p>
+      <p>Total empenhado: <b>${brl.format(f.emendas.total_empenhado)}</b> ·
+         pago até a consulta: <b>${brl.format(f.emendas.total_pago)}</b></p>
+      <table class="bens-tabela">
+        <tr><th>Ano</th><th>Empenhado</th><th>Pago</th></tr>
+        ${Object.entries(f.emendas.por_ano).map(([a, v]) => `<tr><td>${a}</td>
+          <td class="v">${brl.format(v.empenhado)}</td><td class="v">${brl.format(v.pago)}</td></tr>`).join("")}
+      </table>
+      ${(() => {
+        const naoInd = (f.emendas.top_municipios || []).filter((m) =>
+          m.municipio === "Múltiplo" || /^Sem Informa/i.test(m.municipio))
+          .reduce((s, m) => s + m.empenhado, 0);
+        return naoInd > 0.5 * f.emendas.total_empenhado
+          ? `<p class="fonte-linha">A maior parte do valor não é individualizada por município
+             na base da CGU (transferências "múltiplo") — a lista abaixo detalha apenas a
+             parcela individualizada.</p>` : "";
+      })()}
+      ${f.emendas.top_municipios?.length ? `
+      <p style="margin-bottom:2px"><b>Destinos (por valor empenhado)</b></p>
+      <table class="bens-tabela">
+        <tr><th>Localidade</th><th>Empenhado</th></tr>
+        ${f.emendas.top_municipios.map((m) => `<tr>
+          <td>${esc(m.municipio === "Múltiplo" ? "Múltiplos municípios (não individualizado na base)"
+            : (/^Sem Informa/i.test(m.municipio) ? "Localidade não informada na base" : m.municipio))}${
+            m.uf && m.municipio !== "Múltiplo" && !/^Sem Informa/i.test(m.municipio) ? ` · ${esc(m.uf)}` : ""}</td>
+          <td class="v">${brl.format(m.empenhado)}</td></tr>`).join("")}
+      </table>` : ""}
+      ${f.emendas.top_funcoes?.length ? `
+      <p class="fonte-linha">Áreas: ${f.emendas.top_funcoes.map((x) =>
+        `${esc(x.funcao)} ${brl.format(x.empenhado)}`).join(" · ")}</p>` : ""}
+      <div class="disclaimer">${esc(f.emendas.disclaimer || "")}</div>
+    </section>` : ""}
+
     ${f.processos_tse ? "" : secaoEmBreve("🏛️", "Processos da candidatura e judiciais",
       `Impugnações e ações contra a candidatura estão públicas no
        <a href="${esc(f.fontes?.divulgacand)}" target="_blank" rel="noopener">DivulgaCandContas/TSE</a>;
@@ -700,16 +787,21 @@ async function telaFicha(uf, sq) {
 }
 
 /* ── comparador (2-3 candidatos, mesmos campos, mesma ordem) ─── */
-function _resumoIntegridade(f) {
+function _resumoIntegridade(f, uf, incluirCnia) {
+  // conjunto de linhas FIXO para os comparados (a régua não pode depender da
+  // ordem de seleção — auditoria 2); CNIA entra se QUALQUER um tiver registro
   const linhas = [];
   const conta = (regs) => (regs && regs.length ? `${regs.length} registro(s)` : null);
   linhas.push(["TCU (contas irregulares)", !f.tcu?.disponivel ? "cruzamento em preparação"
     : (f.tcu.listado ? conta(f.tcu.registros) : "não consta")]);
   linhas.push(["CGU (CEIS/CNEP/CEAF)", !f.sancoes?.disponivel ? "cruzamento em preparação"
     : (conta(f.sancoes.registros) || "nada consta")]);
-  linhas.push(["TCM-GO (contas municipais)", conta(f.tcmgo?.registros) || "não consta*"]);
-  linhas.push(["TCE-GO (contas estaduais)", conta(f.tcego?.registros) || "não consta*"]);
-  if (f.cnia) linhas.push(["CNIA/CNJ (improbidade)", conta(f.cnia.registros) || "não consta"]);
+  if ((uf || "").toUpperCase() === "GO") {
+    linhas.push(["TCM-GO (contas municipais)", conta(f.tcmgo?.registros) || "não consta*"]);
+    linhas.push(["TCE-GO (contas estaduais)", conta(f.tcego?.registros) || "não consta*"]);
+  }
+  if (incluirCnia) linhas.push(["CNIA/CNJ (improbidade)",
+    f.cnia ? (conta(f.cnia.registros) || "não consta") : "sem registro na coleta dirigida"]);
   return linhas;
 }
 
@@ -752,9 +844,13 @@ async function telaComparar(uf, sqs) {
       ${linha("Trocas de partido", (f) => f.historico?.ja_concorreu
         ? `${f.historico.trocas_partido || 0}` : "—")}
       ${linha("Mandatos exercidos", mandatos)}
-      ${_resumoIntegridade(fichas[0]).map((_, i) =>
-        linha(_resumoIntegridade(fichas[0])[i][0],
-              (f) => esc(_resumoIntegridade(f)[i]?.[1] ?? "—"))).join("")}
+      ${(() => {
+        const incluirCnia = fichas.some((f) => f.cnia);
+        const resumos = fichas.map((f) => _resumoIntegridade(f, uf, incluirCnia));
+        return resumos[0].map((r, i) =>
+          `<tr><th scope="row">${r[0]}</th>${resumos.map((rs) =>
+            `<td>${esc(rs[i]?.[1] ?? "—")}</td>`).join("")}</tr>`).join("");
+      })()}
       ${linha("Empresas na Receita (QSA)", (f) => {
         const es = f.qsa?.empresas || [];
         if (!es.length) return "nenhum vínculo confirmado";
@@ -775,17 +871,32 @@ async function telaComparar(uf, sqs) {
   window.scrollTo({ top: 0 });
 }
 
+function marcarTabelasRolaveis() {
+  document.querySelectorAll(".bens-tabela, .compara-scroll").forEach((el) => {
+    if (el.scrollWidth > el.clientWidth + 4) el.classList.add("rolavel");
+  });
+}
+
 /* ── router ─────────────────────────────────────────────────── */
 async function rotear() {
   const partes = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   const uf = (partes[0] || UF_DEFAULT).toLowerCase();
   try {
-    if (partes[1] === "comparar" && partes[2]) await telaComparar(uf, partes[2].split(",").slice(0, 3));
+    if (partes[1] === "comparar" && partes[2]) {
+      const sqsC = [...new Set(partes[2].split(","))].slice(0, 3);
+      if (sqsC.length < 2) { location.hash = `#/${uf}/${sqsC[0] || ""}`; return; }
+      await telaComparar(uf, sqsC);
+    }
     else if (partes.length >= 2) await telaFicha(uf, partes[1]);
     else await telaBusca(uf);
   } catch (e) {
     app.innerHTML = `<p class="erro">Algo deu errado: ${esc(e.message)} — <a href="#/">recarregar</a></p>`;
   }
 }
-window.addEventListener("hashchange", rotear);
-rotear();
+async function rotearComDicas() {
+  await rotear();
+  requestAnimationFrame(marcarTabelasRolaveis);
+}
+window.addEventListener("hashchange", rotearComDicas);
+window.addEventListener("resize", marcarTabelasRolaveis);
+rotearComDicas();

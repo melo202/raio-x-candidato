@@ -54,6 +54,9 @@ Testado ponta a ponta, com validação independente contra os CSVs brutos.
 | Siconfi — finanças municipais no mandato (DCA, per capita, IPCA) | ✅ rodando (40 ex-gestores) | `siconfi.py` |
 | QSA/Receita — empresas dos candidatos × sanções PJ | ✅ rodando (451 candidatos GO; 23.243 vínculos BR) | `qsa.py` |
 | CNIA/CNJ improbidade | ⚙️ módulo drop-in pronto; captcha server-side bloqueia automação (VPS NÃO resolve) — coleta via Chrome assistido ou manual | `cnia.py` |
+| ALEGO — atuação de dep. estaduais (proposições, leis, frequência) | ✅ rodando (44 candidatos; coleta assistida via Chrome, dump 18/08) | `alego.py` |
+| Dep. federais — como votou (15 matérias maior quórum) + emendas por destino | ✅ rodando (18 candidatos) | `parlamentar.py`, `emendas.py` |
+| Quem financia 2026 (receitas, doadores, fornecedores × CEIS/CNEP) | ⚙️ pronto e encadeado; ativa sozinho quando o TSE publicar a parcial (09-13/09) | `financiamento.py` |
 | TCU contas irregulares | ⚙️ cruzador pronto; falta o CSV manual em `data/tcu/` (portal tem WAF) | `tcu.py` |
 | Processos da candidatura (API DivulgaCand) | ⚙️ módulo pronto; RODAR DO VPS (bloqueia datacenter) | `processos_tse.py` |
 | Resumo IA de planos de governo | ⚙️ pronto; precisa `ANTHROPIC_API_KEY` | `resumo_planos.py` |

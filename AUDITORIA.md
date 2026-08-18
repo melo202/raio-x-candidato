@@ -134,3 +134,55 @@ gestor/não-gestor funcionando.
   publicamos como está na lista, com link para conferência.
 - Siconfi: população de Rio Verde cai 247k→214k entre 2023/2024 na própria API (revisão
   censitária IBGE).
+
+---
+
+# AUDITORIA 2 — 18/08/2026 (noite): camadas novas + site publicado
+
+## Validação de dados (recontagem independente): TUDO CONFERE
+Emendas 18/18 ao centavo (e granularidade da base investigada: linhas múltiplas são rateio,
+não repetição); votos-chave 4 deputados × 4 votações contra a API oficial ✓ + 15 placares ✓;
+ALEGO 44/44 recomputados exatos, matches todos plausíveis; financiamento-2022 3/3 ao centavo,
+máscara de CPF em 1.180 sidecars sem exceção; ZERO CPF formatado em todo o docs/data.
+
+## Corrigido nesta rodada (era 🔴/🟡)
+1. **Seção "Quem financia" quebrada NO AR** (placeholder `{disponivel:false}` renderizava
+   "Quem financia (undefined)" nas 888 fichas) → condição corrigida no app.js.
+2. **"não registrou voto" injusto**: suplente sem mandato na data (caso Samuel dos Santos,
+   13×) → rótulo "não estava em exercício no período" + nota na tabela de participação.
+3. **PEC 45 duplicada no top-15** (turnos com ids de proposição distintos) → dedupe por
+   número/ano da matéria extraído da descrição.
+4. **Comparador dependia da ordem de seleção** (linha CNIA sumia se o 1º clicado não a
+   tivesse) → conjunto de linhas fixo pela união das fichas; TCM/TCE só para GO; dedupe de
+   sq repetida na URL; estado zera ao trocar de UF; memoização.
+5. **run_all**: emendas rodava ANTES de parlamentar (de quem depende) → reordenado; --force
+   propagado a financiamento/emendas; bump do sw.js com hora (não só data).
+6. **emendas**: total_pago agora soma Restos a Pagar pagos (antes subestimava bilhões na
+   base); guarda de homonímia por Código do Autor; título da seção juridicamente preciso
+   ("para onde indicou recursos"); aviso automático quando >50% é "múltiplo"; rótulo
+   "Localidade não informada".
+7. **alego**: regra automática de subconjunto de nomes REMOVIDA (era mais frouxa que o
+   critério declarado) → só exato + aliases verificados manualmente (Anderson Teodoro
+   promovido a alias); critério da ficha corrigido para o que o código realmente faz;
+   higiene de sidecar no parlamentar.
+8. **XSS**: esc() nas interpolações de dados da ALEGO (legislaturas, tipos de lei).
+9. **Metodologia v2.1**: cobre votos-chave (critério completo: ≥400, PDL, decisiva, as
+   mesmas 15 pra todos), emendas, ALEGO (coleta assistida ~mensal declarada + Nível 4 de
+   identificação + cobertura 44/49), quem-financia (corte top-10, PF não cruzado) e
+   comparador (conjunto fixo de campos). "Processamento diário" corrigido por camada.
+10. **privacidade.html**: doadores/fornecedores PF como titulares (antes de 09/09) + ALEGO
+    nas fontes e órgãos de retificação.
+11. **UX mobile**: dica "⇢ deslize para ver mais" automática em tabelas que rolam; legenda
+    dos rótulos de voto (obstrução/abstenção/Art. 17).
+
+## Backlog (🟡/🔵 remanescentes)
+- QSA mobile: célula de sanções alta cria vazio na 1ª linha (quebrar em linha própria).
+- Stubs: og:image por candidato (hoje genérica) e descrição citando camadas novas.
+- ALEGO: exibir Licenciado/Afastado na tabela de frequência; % alternativo sem penalizar
+  falta justificada; PDL fora de "outros atos".
+- financiamento: rotular "documento não informado"; filtrar fornecedor "#Nulo"; fonte_url
+  por ano (slug CKAN de 2022 mudou — o de 2026 responde 200); não limpar sidecars quando o
+  CSV da UF ainda não existe no zip; monitorar 1º snapshot pós-final (parcial×final).
+- votos_chave: baixar votacoesVotos ausente na hora (hoje warn+pula); truncamento com "…".
+- injetar: restaurar placeholder de financiamento em vez de deletar (hoje inócuo, app.js robusto).
+- Changelog de versões da metodologia; anotar robots/termos do SPL no README da coleta.

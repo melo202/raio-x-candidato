@@ -1,6 +1,6 @@
 /* Service worker — shell em cache, dados sempre frescos com fallback offline.
    (padrão Gesto!/Tabi, adaptado: dados eleitorais mudam todo dia)            */
-const VERSAO = "raiox-20260818b";
+const VERSAO = "raiox-202608182100";
 const SHELL = ["./", "./index.html", "./style.css", "./app.js", "./manifest.json"];
 
 self.addEventListener("install", (e) => {

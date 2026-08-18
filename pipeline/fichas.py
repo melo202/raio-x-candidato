@@ -416,7 +416,7 @@ def gerar_uf(con: duckdb.DuckDBPyConnection, uf: str, tcu: CruzadorTCU) -> dict:
         parl_path = config.OUT_DATA / "parlamentar" / uf / f"{sq}.json"
         if parl_path.exists():
             ficha["parlamentar"] = json.loads(parl_path.read_text("utf-8"))
-        for camada in ("tcmgo", "tcego", "siconfi", "cnia", "qsa", "financiamento"):
+        for camada in ("tcmgo", "tcego", "siconfi", "cnia", "qsa", "financiamento", "emendas", "alego"):
             p = config.OUT_DATA / camada / uf / f"{sq}.json"
             if p.exists():
                 ficha[camada] = json.loads(p.read_text("utf-8"))
